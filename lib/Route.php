@@ -195,8 +195,8 @@ class Route
         $path_to_match = $parsed['path'];
 
         //The process of matching is easier if there are no preceding slashes
-        $temp_this_path     = preg_replace('/^\//', '', $this->path);
-        $temp_path_to_match = preg_replace('/^\//', '', $path_to_match);
+        $temp_this_path     = trim($this->path, '/');
+        $temp_path_to_match = trim($path_to_match, '/');
 
         //Get the path elements used for matching later
         $this_path_elements  = explode('/', $temp_this_path);
@@ -208,7 +208,7 @@ class Route
             return FALSE;
 
         //Construct a path string that will be used for matching
-        $possible_match_string = '';
+        $possible_match_string = array();
         foreach( $this_path_elements as $i => $this_path_element )
         {
 
@@ -222,7 +222,7 @@ class Route
             // will discover it.
             if( $this_path_element === $match_path_elements[$i] )
             {
-                $possible_match_string .= "/{$match_path_elements[$i]}";
+                $possible_match_string[] = $match_path_elements[$i];
                 continue;
             }
 
@@ -234,9 +234,14 @@ class Route
                     $function = $this->dynamicElements[$this_path_element];
                     $match = $function($match_path_elements[$i]);
                     if($match){
+
+                        $found_dynamic_args[$this_path_element] = $match_path_elements[$i];
+                        $possible_match_string[] = $match_path_elements[$i];
                         continue;
                     }
-                    return false;
+                    else {
+                        return false;
+                    }
                 }
 
                 //The dynamic array either contains a key like ':id' or a
@@ -244,7 +249,7 @@ class Route
                 // anything
                 if( $this->dynamicElements[$this_path_element] === $this_path_element )
                 {
-                    $possible_match_string .= "/{$match_path_elements[$i]}";
+                    $possible_match_string[] = $match_path_elements[$i];
 
                     //The class and/or method may be getting set dynamically. If so
                     // extract them and set them
@@ -263,7 +268,7 @@ class Route
 
                     continue;
                 }
-                
+
                 //Attempt a regular expression match
                 $regexp = '/' . $this->dynamicElements[$this_path_element] . '/';
                 if( preg_match( $regexp, $match_path_elements[$i] ) > 0 )
@@ -283,7 +288,7 @@ class Route
                         $found_dynamic_args[$this_path_element] = $match_path_elements[$i];
                     }
 
-                    $possible_match_string .= "/{$match_path_elements[$i]}";
+                    $possible_match_string[] = $match_path_elements[$i];
                     continue;
                 }
             }
@@ -295,8 +300,11 @@ class Route
             return FALSE;
         }
 
+        $path_to_match = trim($path_to_match, '/');
+        $possible_match_string = implode('/', $possible_match_string);
+
         //Do the final comparison and return the result
-        if( $possible_match_string === $path_to_match )
+        if($possible_match_string  === $path_to_match )
         {
             if( NULL !== $found_dynamic_class )
                 $this->setMapClass($found_dynamic_class);
