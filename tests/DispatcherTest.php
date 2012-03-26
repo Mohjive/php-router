@@ -266,7 +266,6 @@ class DispatcherTest extends PHPUnit_Framework_TestCase
       $dispatcher = new Dispatcher();
 
       $this->assertSame($dispatcher, $dispatcher->setSuffix(''));
-      $this->assertSame($dispatcher, $dispatcher->setClassPath(''));
     }
 }
 

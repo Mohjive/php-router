@@ -14,12 +14,6 @@ class Dispatcher
     private $suffix;
 
     /**
-     * The path to look for classes (or controllers)
-     * @var string
-     */
-    private $classPath;
-
-    /**
      * Class constructor
      */
     public function __construct()
@@ -60,7 +54,6 @@ class Dispatcher
             throw new badClassNameException('Disallowed characters in class name ' . $class);
 
         //Apply the suffix
-        $file_name = $this->classPath . $class . $this->suffix;
         $class = $class . str_replace($this->getFileExtension(), '', $this->suffix);
         // add namespace to class
         if($namespace){
@@ -101,18 +94,6 @@ class Dispatcher
     public function setSuffix( $suffix )
     {
         $this->suffix = $suffix . $this->getFileExtension();
-
-        return $this;
-    }
-
-    /**
-     * Set the path where dispatch class (controllers) reside
-     * @param string $path
-     * @return Dispatcher
-     */
-    public function setClassPath( $path )
-    {
-        $this->classPath = preg_replace('/\/$/', '', $path) . '/';
 
         return $this;
     }
