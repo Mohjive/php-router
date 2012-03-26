@@ -1,3 +1,41 @@
+Changes
+===========================
+
+Seperated auto loading responsibilities to autoloading class. Dispacher.php no longer has the method setClassPath(). Dispatcher.php now only throws the following exceptions: 
+
+* badClassNameException 
+* classMethodNotFoundException
+* classNotSpecifiedException
+* methodNotSpecifiedException
+
+The auto loader now handles file and class not found with
+
+* AutoLoaderClassFileNotFoundException
+* AutoLoaderClassNotFoundException
+
+
+Allow match string to be a function that accepts the match paramater and returns true if it is a match or false if it is not
+
+    $route->addDynamicElement( ':id', function($var) {
+        if( ctype_alnum($var)){
+            return true;  
+        }
+        return false;
+    });
+
+Added class namespacing 
+
+    $route = new Route('/foo/test/:id/');
+    $route
+      ->setMapNameSpace('Controller')
+      ->setMapClass( 'Foo' )
+      ->setMapMethod( 'test' )
+      ->addDynamicElement(':id', ':id')
+
+Updated unit tests for 100% coverage (excluding the auto loader)
+
+readme from master:
+
 PHP Router
 ===========================
 
