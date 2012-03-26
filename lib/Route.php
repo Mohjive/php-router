@@ -13,6 +13,13 @@ class Route
      */
     private $path;
 
+
+    /**
+     * The namespace of the class that this route maps to
+     * @var string
+     */
+    private $nameSpace;
+
     /**
      * The name of the class that this route maps to
      * @var string
@@ -24,16 +31,16 @@ class Route
      * @var string
      */
     private $method;
-    
+
     /**
      * Stores any set dynamic elements
-     * @var array 
+     * @var array
      */
     private $dynamicElements = array();
-    
+
     /**
      * Stores any arguments found when mapping
-     * @var array 
+     * @var array
      */
     private $mapArguments = array();
 
@@ -68,6 +75,26 @@ class Route
     {
         return $this->path;
     }
+
+    /**
+     * Get the map class namespace
+     * @return string
+     * @access public
+     */
+    public function getMapNameSpace() {
+        return $this->nameSpace;
+    }
+
+    /**
+     * Set the map class namespace
+     * @param string $class
+     * @return Route
+     */
+    public function setMapNameSpace($nameSpace) {
+        $this->nameSpace = $nameSpace;
+        return $this;
+    }
+
     /**
      * Set the map class name
      * @param string $class
@@ -83,13 +110,12 @@ class Route
     /**
      * Get the map class name
      * @return string
-     * @access public
      */
     public function getMapClass()
     {
         return $this->class;
     }
-    
+
     /**
      * Sets the map method name
      * @param string $method
@@ -143,7 +169,7 @@ class Route
     {
         $this->mapArguments[$key] = $value;
     }
-    
+
     /**
      * Gets the _mapArguments array
      * @return array
@@ -163,7 +189,7 @@ class Route
         $found_dynamic_class  = NULL;
         $found_dynamic_method = NULL;
         $found_dynamic_args   = array();
-        
+
         //Ignore query parameters during matching
         $parsed = parse_url($path_to_match);
         $path_to_match = $parsed['path'];
@@ -185,6 +211,7 @@ class Route
         $possible_match_string = '';
         foreach( $this_path_elements as $i => $this_path_element )
         {
+
             // ':'s are never allowed at the beginning of the path element
             if( preg_match('/^:/', $match_path_elements[$i]) )
             {
@@ -202,8 +229,18 @@ class Route
             //Consult the dynamic array for help in matching
             if( TRUE === isset($this->dynamicElements[$this_path_element]) )
             {
+
+                if(is_callable($this->dynamicElements[$this_path_element])){
+                    $function = $this->dynamicElements[$this_path_element];
+                    $match = $function($match_path_elements[$i]);
+                    if($match){
+                        continue;
+                    }
+                    return false;
+                }
+
                 //The dynamic array either contains a key like ':id' or a
-                // regular expression. In the case of a key, the key matches
+                // regular expression or a function. In the case of a key, the key matches
                 // anything
                 if( $this->dynamicElements[$this_path_element] === $this_path_element )
                 {
@@ -226,7 +263,7 @@ class Route
 
                     continue;
                 }
-
+                
                 //Attempt a regular expression match
                 $regexp = '/' . $this->dynamicElements[$this_path_element] . '/';
                 if( preg_match( $regexp, $match_path_elements[$i] ) > 0 )
@@ -257,7 +294,7 @@ class Route
             // a match.
             return FALSE;
         }
-        
+
         //Do the final comparison and return the result
         if( $possible_match_string === $path_to_match )
         {
@@ -272,12 +309,9 @@ class Route
                 $this->addMapArguments($key, $found_dynamic_arg);
             }
 
-            return TRUE;
+
         }
-        else
-        {
-            return FALSE;
-        }
+        return TRUE;
     }
 }
 

@@ -31,9 +31,7 @@ class Dispatcher
      * Attempts to dispatch the supplied Route object. Returns false if it fails
      * @param Route $route
      * @param mixed $context
-     * @throws classFileNotFoundException
      * @throws badClassNameException
-     * @throws classNameNotFoundException
      * @throws classMethodNotFoundException
      * @throws classNotSpecifiedException
      * @throws methodNotSpecifiedException
@@ -41,6 +39,7 @@ class Dispatcher
      */
     public function dispatch( Route $route, $context = null )
     {
+        $namespace  = trim($route->getMapNameSpace());
         $class      = trim($route->getMapClass());
         $method     = trim($route->getMapMethod());
         $arguments  = $route->getMapArguments();
@@ -63,17 +62,12 @@ class Dispatcher
         //Apply the suffix
         $file_name = $this->classPath . $class . $this->suffix;
         $class = $class . str_replace($this->getFileExtension(), '', $this->suffix);
-        
-        //At this point, we are relatively assured that the file name is safe
-        // to check for it's existence and require in.
-        if( FALSE === file_exists($file_name) )
-            throw new classFileNotFoundException('Class file not found');
-        else
-            require_once($file_name);
+        // add namespace to class
+        if($namespace){
+            $class = $namespace . '\\' . $class;
+        }
 
-        //Check for the class class
-        if( FALSE === class_exists($class) )
-            throw new classNameNotFoundException('class not found ' . $class);
+        $obj = new $class($context);
 
         //Check for the method
         if( FALSE === method_exists($class, $method))
@@ -81,8 +75,22 @@ class Dispatcher
 
         //All above checks should have confirmed that the class can be instatiated
         // and the method can be called
+        return $this->dispatchController($class, $method, $arguments, $context);
+    }
+
+    /**
+     * Create instance of controller and dispatch to it's method passing
+     * arguments. Override to change behavior.
+     *
+     * @param string $class
+     * @param string $method
+     * @param array $args
+     * @return mixed - result of controller method
+     */
+    protected function dispatchController($class, $method, $args, $context = null)
+    {
         $obj = new $class($context);
-        return call_user_func(array($obj, $method), $arguments);
+        return call_user_func(array($obj, $method), $args);
     }
 
     /**
@@ -116,8 +124,6 @@ class Dispatcher
 }
 
 class badClassNameException extends Exception{}
-class classFileNotFoundException extends Exception{}
-class classNameNotFoundException extends Exception{}
 class classMethodNotFoundException extends Exception{}
 class classNotSpecifiedException extends Exception{}
 class methodNotSpecifiedException extends Exception{}

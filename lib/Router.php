@@ -18,26 +18,26 @@ class Router
      * @var string
      */
     private $prefix = "";
-    
+
     /**
      * Object constructor. Optionally pass array of routes to add
-     * 
-     * @param array[string]Route $routes 
+     *
+     * @param array[string]Route $routes
      */
     public function __construct( $routes = array() )
     {
         $this->addRoutes($routes);
     }
-    
+
     /**
      *
-     * @param string $prefix 
+     * @param string $prefix
      */
     public function setPrefix( $prefix )
     {
         $this->prefix = $prefix;
     }
-    
+
     /**
      * Adds a named route to the list of possible routes
      * @param string $name
@@ -53,7 +53,7 @@ class Router
 
     /**
      * Adds an array of named routes to the list of possible routes
-     * 
+     *
      * @param array[string]Route $routes
      * @return Router
      */
@@ -86,13 +86,13 @@ class Router
     {
         if( TRUE !== array_key_exists($name, $this->routes) )
             throw new NamedPathNotFoundException;
-        
+
         $match_ok = TRUE;
 
         //Check for the correct number of arguments
         if( count($args) !== count($this->routes[$name]->getDynamicElements()) )
             $match_ok = FALSE;
-        
+
         /*
          * This will assure arguments that are more specific are replaced before.
          * That's important as if we have a route /:some/:something and we input :some before :something in the $args arrau :something's :some will also be replaced.

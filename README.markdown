@@ -1,3 +1,32 @@
+Changes
+===========================
+
+Seperated auto loading responsibilities to autoloading class. Dispatcher.php now only throws the following exceptions: 
+
+* badClassNameException 
+* classMethodNotFoundException
+* classNotSpecifiedException
+* methodNotSpecifiedException
+
+The auto loader now handles file and class not found with
+
+* AutoLoaderClassFileNotFoundException
+* AutoLoaderClassNotFoundException
+
+
+    // allow match string to be a function that accepts the match paramater and returns true if it is a match or false if it is not
+    $route->addDynamicElement( ':id', function($var) {
+        if( ctype_alnum($var)){
+            return true;  
+        }
+        return false;
+    });
+
+    // added class namespacing 
+    $route->setMapNameSpace( 'Controllers' )
+
+readme from master:
+
 PHP Router
 ===========================
 
