@@ -65,26 +65,14 @@ try {
 
 
 
-} catch ( RouteNotFoundException $e ) {
-    echo 'RouteNotFoundException' . PHP_EOL;
-    echo '404 '. $url . PHP_EOL;
-} catch ( badClassNameException $e ) {
-    echo 'badClassNameException' . PHP_EOL;
-    echo '400 '. $url . PHP_EOL;
-} catch ( AutoLoaderClassFileNotFoundException $e ) {
-    echo 'classFileNotFoundException' . PHP_EOL;
-    echo '500 '. $url . PHP_EOL;
-} catch ( AutoLoaderClassNotFoundException $e ) {
-    echo 'classNameNotFoundException' . PHP_EOL;
-    echo '500 '. $url . PHP_EOL;
-} catch ( classMethodNotFoundException $e ) {
-    echo 'classMethodNotFoundException' . PHP_EOL;
-    echo '500 '. $url . PHP_EOL;
-} catch ( classNotSpecifiedException $e ) {
-    echo 'classNotSpecifiedException' . PHP_EOL;
-    echo '500 '. $url . PHP_EOL;
-} catch ( methodNotSpecifiedException $e ) {
-    echo 'methodNotSpecifiedException' . PHP_EOL;
-    echo '500 '. $url . PHP_EOL;
+} catch (Exception $e ) {
+
+
+    // log error
+    error_log('Route Exception');
+    error_log($e->toString());
+
+    // redirec to 404 page
+
 }
 

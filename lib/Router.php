@@ -85,7 +85,7 @@ class Router
     public function getUrl( $name, $args = array(), $prefixed = true )
     {
         if( TRUE !== array_key_exists($name, $this->routes) )
-            throw new NamedPathNotFoundException;
+            throw new NamedPathNotFoundException('The named path: "' . $name . '" was not found');
 
         $match_ok = TRUE;
 
@@ -139,7 +139,7 @@ class Router
             }
         }
 
-        throw new RouteNotFoundException;
+        throw new RouteNotFoundException('The route: "' . $path . '" was not found');
     }
 }
 

@@ -39,10 +39,10 @@ class Dispatcher
         $arguments  = $route->getMapArguments();
 
         if( '' === $class )
-            throw new classNotSpecifiedException('Class Name not specified');
+            throw new classNotSpecifiedException('Class Name not specified in route: ' . $route);
 
         if( '' === $method )
-            throw new methodNotSpecifiedException('Method Name not specified');
+            throw new methodNotSpecifiedException('Method Name not specified in route: ' . $route);
 
         //Because the class could have been matched as a dynamic element,
         // it would mean that the value in $class is untrusted. Therefore,
@@ -64,7 +64,7 @@ class Dispatcher
 
         //Check for the method
         if( FALSE === method_exists($class, $method))
-            throw new classMethodNotFoundException('method not found ' . $method);
+            throw new classMethodNotFoundException('The method: "' . $method . '" was not found in class: "' . $class . '"');
 
         //All above checks should have confirmed that the class can be instatiated
         // and the method can be called
