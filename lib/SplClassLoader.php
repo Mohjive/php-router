@@ -120,9 +120,7 @@ class SplClassLoader {
                 $className = substr($className, ($lastNsPos + 1));
                 $fileName = str_replace($this->_namespaceSeparator, DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
             }
-
-//            error_log('ClassName ' . $className);
-//            error_log('Namespace ' . $this->_namespace);
+            
             $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . $this->_fileExtension;
 
             $filePath = ($this->_includePath !== null ? $this->_includePath . DIRECTORY_SEPARATOR : '') . $fileName;
