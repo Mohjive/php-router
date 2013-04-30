@@ -32,7 +32,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
         $test_path = '/a/path';
         $route->setPath( $test_path );
-        
+
         $this->assertSame($test_path, $route->getPath(), 'Path not set correctly');
     }
 
@@ -40,12 +40,15 @@ class RouteTest extends PHPUnit_Framework_TestCase
     {
         $route = new Route;
 
+        $test_namespace  = 'namespace';
         $test_class  = 'class';
         $test_method = 'method';
 
+        $route->setMapNameSpace( $test_namespace );
         $route->setMapClass( $test_class );
         $route->setMapMethod( $test_method );
 
+        $this->assertAttributeEquals( $test_namespace, 'nameSpace', $route );
         $this->assertAttributeEquals( $test_class, 'class', $route );
         $this->assertAttributeEquals( $test_method, 'method', $route );
     }
@@ -54,12 +57,15 @@ class RouteTest extends PHPUnit_Framework_TestCase
     {
         $route = new Route;
 
+        $test_namespace  = 'namespace';
         $test_class  = 'class';
         $test_method = 'method';
 
+        $route->setMapNameSpace( $test_namespace );
         $route->setMapClass( $test_class );
         $route->setMapMethod( $test_method );
 
+        $this->assertSame( $test_namespace, $route->getMapNameSpace(), 'Class not set correctly' );
         $this->assertSame( $test_class, $route->getMapClass(), 'Class not set correctly' );
         $this->assertSame( $test_method, $route->getMapMethod(), 'Method not set correctly' );
     }
@@ -86,7 +92,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertTrue( $route->matchMap('/this/path/succeeds'));
         $this->assertSame( 'this', $route->getMapClass() );
         $this->assertSame( 'path', $route->getMapMethod() );
-        
+
 
         $this->assertFalse($route->matchMap('/this/path/should/fail'));
         $this->assertFalse($route->matchMap('/this/:path/fails'));
@@ -116,9 +122,9 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route->addDynamicElement( ':class', '^startWith' );
         $route->addDynamicElement( ':method', 'endsIn$' );
         $route->addDynamicElement( ':id', '^\d{4}$' );
-        
+
         $route_result = $route->matchMap('/startWith_/_endsIn/1234');
-        
+
         $this->assertTrue( $route_result );
         $this->assertSame('startWith_', $route->getMapClass());
         $this->assertSame('_endsIn', $route->getMapMethod());
@@ -139,6 +145,31 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertFalse( $route->matchMap('/otherclass/somemethod') );
         $this->assertFalse( $route->matchMap('/someclass/somemethod/abc') );
         $this->assertFalse( $route->matchMap('/someclass/somemethod/') );
+    }
+
+    public function testMatchFunction()
+    {
+        $route = new Route;
+
+        $route->setPath( '/someclass/:method' );
+
+        $route->setMapClass( 'someclass' );
+
+        $route->addDynamicElement( ':method',
+            function($var){
+                if($var == 'x') {
+                        return true;
+                }
+                return false;
+
+            } );
+
+
+        $this->assertTrue( $route->matchMap('/someclass/x') );
+        $this->assertFalse( $route->matchMap('/someclass/y') );
+        $this->assertFalse( $route->matchMap('/otherclass/y') );
+
+        $this->assertFalse( $route->matchMap('/someclass/x/abc') );
     }
 
     public function testMatchStaticBaseMethod()
@@ -190,7 +221,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route->matchMap('/class/method/one/two');
 
         $args_array = $route->getMapArguments();
-        
+
         $this->assertArrayHasKey(':id1', $args_array);
         $this->assertArrayHasKey(':id2', $args_array);
     }
@@ -204,16 +235,17 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertSame($route, $route->setMapMethod(''));
         $this->assertSame($route, $route->addDynamicElement('', ''));
     }
-    
+
     public function testMatchMapWhenQueryParametersArePresent()
     {
         $route = new Route( "/2008-08-01/Accounts/:id/IncomingPhoneNumbers" );
         $route->setMapClass( 'IncomingPhoneNumbers' )->setMapMethod( 'list' );
         $route->addDynamicElement( ':id', ':id' );
-        
+
         $result = $route->matchMap('/2008-08-01/Accounts/1/IncomingPhoneNumbers?a=1&b=2');
         $this->assertTrue($result);
     }
+
 }
 
 ?>
